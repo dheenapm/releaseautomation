@@ -1,4 +1,4 @@
-name: Release to Production – Entry Point
+name: Release to Production – QA Sign-off
 
 on:
   pull_request:
@@ -14,12 +14,14 @@ permissions:
   pull-requests: read
 
 jobs:
-  entry-point:
-    name: Entry point – Release → Production
+  qa-signoff:
+    name: QA Sign-off Required
     runs-on: ubuntu-latest
+    environment:
+      name: qa-prod-signoff
     steps:
-      - name: Confirm trigger
+      - name: Pause for QA approval
         run: |
-          echo "✅ Release → Production PR detected"
-          echo "PR number: ${{ github.event.pull_request.number }}"
+          echo "⏸ Waiting for QA approval before proceeding to production"
+          echo "PR #: ${{ github.event.pull_request.number }}"
           echo "Source branch: ${{ github.head_ref }}"
