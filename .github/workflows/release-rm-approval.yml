@@ -1,4 +1,4 @@
-name: Release Manager Approval Only
+name: Release Manager Approval and QA Assignment Flow
 
 on:
   push:
@@ -12,5 +12,63 @@ jobs:
     environment:
       name: pre-qa-approval
     steps:
-      - name: Pause for approval
-        run: echo "Waiting for Release Manager approval before QA"
+      - name: Pause for Release Manager approval
+        run: echo "Waiting for Release Manager approval before deploying to QA"
+
+  deploy-to-qa:
+    name: Deploy to QA
+    needs: release-manager-approval
+    runs-on: ubuntu-latest
+    environment:
+      name: qa
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Execute QA Deployment
+        run: ./scripts/deploy_qa.sh
+
+  create-qa-uat-assignment-issue:
+    name: Create QA & UAT Assignment Issue
+    needs: deploy-to-qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Issue for QA & UAT Assignment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Release ${context.runNumber}: Assign QA & UAT Approvers`,
+              body: `
+🚀 **Release Ready – QA Deployment Complete**
+
+**Release Number:** ${context.runNumber}
+
+✅ Code has been successfully deployed to the **QA environment**.
+
+---
+
+🔹 **Release Manager – Action Required**
+
+Please complete the following steps:
+
+1️⃣ Assign the **QA approver**
+2️⃣ Assign the **UAT approver**
+3️⃣ Add a comment confirming the assignments
+
+✅ **Example comment to add:**
+\`\`\`
+QA Assigned: @qa-user
+UAT Assigned: @uat-user
+\`\`\`
+
+---
+
+⛔ **QA and UAT approval steps will NOT proceed until assignments are complete.**
+`,
+              labels: ['release', 'qa-assignment', 'uat-assignment']
+            });
+
+            core.info(`✅ Assignment Issue created: ${issue.data.html_url}`);
