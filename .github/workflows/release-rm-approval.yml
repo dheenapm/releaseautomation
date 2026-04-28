@@ -37,38 +37,36 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const bodyLines = [
+              "🚀 **Release Ready – QA Deployment Complete**",
+              "",
+              `**Release Number:** ${context.runNumber}`,
+              "",
+              "✅ Code has been successfully deployed to the **QA environment**.",
+              "",
+              "🔹 **Release Manager – Action Required**",
+              "",
+              "Please complete the following steps:",
+              "",
+              "1️⃣ Assign the **QA approver**",
+              "2️⃣ Assign the **UAT approver**",
+              "3️⃣ Add a comment confirming the assignments",
+              "",
+              "✅ **Example comment:**",
+              "```",
+              "QA Assigned: @qa-user",
+              "UAT Assigned: @uat-user",
+              "```",
+              "",
+              "⛔ **QA and UAT approval steps will NOT proceed until assignments are complete.**"
+            ].join("\n");
+
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Release ${context.runNumber}: Assign QA & UAT Approvers`,
-              body: `
-🚀 **Release Ready – QA Deployment Complete**
-
-**Release Number:** ${context.runNumber}
-
-✅ Code has been successfully deployed to the **QA environment**.
-
----
-
-🔹 **Release Manager – Action Required**
-
-Please complete the following steps:
-
-1️⃣ Assign the **QA approver**
-2️⃣ Assign the **UAT approver**
-3️⃣ Add a comment confirming the assignments
-
-✅ **Example comment to add:**
-\`\`\`
-QA Assigned: @qa-user
-UAT Assigned: @uat-user
-\`\`\`
-
----
-
-⛔ **QA and UAT approval steps will NOT proceed until assignments are complete.**
-`,
-              labels: ['release', 'qa-assignment', 'uat-assignment']
+              body: bodyLines,
+              labels: ["release", "qa-assignment", "uat-assignment"]
             });
 
-            core.info(`✅ Assignment Issue created: ${issue.data.html_url}`);
+            core.info(`Assignment Issue created: ${issue.data.html_url}`);
