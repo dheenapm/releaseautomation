@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - release/**
-
+permissions:
+  contents: read
+  issues: write
+``
 jobs:
   release-manager-approval:
     name: Wait for Release Manager Approval
