@@ -1,0 +1,16 @@
+name: Release Manager Approval Only
+
+on:
+  push:
+    branches:
+      - release/**
+
+jobs:
+  release-manager-approval:
+    name: Wait for Release Manager Approval
+    runs-on: ubuntu-latest
+    environment:
+      name: pre-qa-approval
+    steps:
+      - name: Pause for approval
+        run: echo "Waiting for Release Manager approval before QA"
