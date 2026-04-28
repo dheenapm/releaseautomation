@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
   issues: write
-``
+
 jobs:
   release-manager-approval:
     name: Wait for Release Manager Approval
