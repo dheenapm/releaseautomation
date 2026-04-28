@@ -1,0 +1,25 @@
+name: Release to Production – Entry Point
+
+on:
+  pull_request:
+    branches:
+      - production
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  entry-point:
+    name: Entry point – Release → Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm trigger
+        run: |
+          echo "✅ Release → Production PR detected"
+          echo "PR number: ${{ github.event.pull_request.number }}"
+          echo "Source branch: ${{ github.head_ref }}"
